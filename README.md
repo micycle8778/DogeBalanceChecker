@@ -21,6 +21,23 @@ Do the following command to run the file,
 
 and you should see the balance of your doges in a couple of seconds a long with th balance in different curreneies!
 
-## Credits
+# DogeLookup
+Checks the balance of any dogecoin address
+
+## Dependencies
+
+Python 3.4 or greater
+CoinMarketCap
+
+Do the following command to install CoinMarketCap when you have Pip setup:
+`pip3 install coinmarketcap` as root/admin
+
+## Running The Program
+
+Do the following command to run the file,
+
+`python3 DogeLookup.py`
+
+# Credits
 
 I'm crediting [/u/peoplma](https://reddit.com/user/peoplma) for making the core of this program.
