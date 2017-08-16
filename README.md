@@ -11,32 +11,15 @@ Do the following command to install CoinMarketCap when you have Pip setup:
 
 ## Setting Up
 
-Change my addresses to something else in the code. It should be under the varible `addresses`.
+In `addresses.txt`, you input your addresses there. Every address should be seperated by a new line.
 
 ## Running The Program
 
 Do the following command to run the file,
 
-`python3 DogeBalanceChecker.py`
+`python3 DogeBalanceChecker.py -h`
 
-and you should see the balance of your doges in a couple of seconds a long with th balance in different curreneies!
-
-# DogeLookup
-Checks the balance of any dogecoin address
-
-## Dependencies
-
-Python 3.4 or greater
-CoinMarketCap
-
-Do the following command to install CoinMarketCap when you have Pip setup:
-`pip3 install coinmarketcap` as root/admin
-
-## Running The Program
-
-Do the following command to run the file,
-
-`python3 DogeLookup.py`
+and you should see the help text to use this program.
 
 # Credits
 

@@ -2,10 +2,29 @@ import requests
 import json
 from coinmarketcap import Market
 import os
+import sys
 
 os.system('cls' if os.name == 'nt' else 'clear')
+helptext = """
+DogeBalanceChecker 1.1
 
-addresses = ["DKkiGk6QdPh8gJgkn5FSASsfqWzRkfMwgL","DT2X7SeX8P3gzjfHjAnkUs6LYcAduEcy25", "DQ49PRJ4TqT8XLBFrtgKFySHiDSg36qhhi", "DH2GJ132hSDg7npBN9LcUJVvC6ZAz6Juvc", "D59LaXXtJy5fPCZKx56D5WVRy6uKEwW1u6", "DEq2Ymr4wD6DwNnLQSDyFg188TnMiLBn23", "DRietsQ2jQ1XZRtn2t1TLPiZLze1hp7Gnv", "DCC1oPoRmeZTvfkdV4pMDT5HM323ZTmp1u"]
+python DogeBalanceChecker [FLAG]
+
+Help:
+
+-b : shows balance of recorded addresses
+
+-l : lets you lookup the balance of any address in multiple currencies
+
+-m : shows you the balance of recorded addresses in multiple currencies
+
+-a : adds address to the list of addresses
+
+-h : display help text
+
+-v : display the program version
+"""
+version = "DogeBalanceChecker 1.1"
 
 coinmarketcap = Market()
 dogecoin = coinmarketcap.ticker("Dogecoin", limit=3, convert="USD")[0]
@@ -20,7 +39,8 @@ audprice = dogecoin["price_aud"]
 dogecoin = coinmarketcap.ticker("Dogecoin", limit=3, convert="CAD")[0]
 cadprice = dogecoin["price_cad"]
 
-def addressBreakDown():
+def balance():
+	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
 		get_address_info = requests.get('https://api.blockcypher.com/v1/doge/main/addrs/'+i+'/full?limit=99999')
@@ -37,4 +57,78 @@ def addressBreakDown():
 	print("balance aud :", str(float(audprice) * totalBalance))
 	print("balance cad :", str(float(cadprice) * totalBalance))
 
-addressBreakDown()
+def lookup(address):
+	loop = True
+	while(loop):
+		addresses = []
+		addresses.append(address)
+		os.system('cls' if os.name == 'nt' else 'clear')
+		balance = []
+		for i in addresses:
+			get_address_info = requests.get('https://api.blockcypher.com/v1/doge/main/addrs/'+i+'/full?limit=99999')
+			address_info = get_address_info.text
+			j_address_info = json.loads(address_info)
+			balance.append(j_address_info['balance'])
+		print(addresses[0]+"'s balance : "+str(sum(balance)/100000000)+' doge')
+		totalBalance = sum(balance)/100000000
+		print("balance usd :", str(float(usdprice) * totalBalance))
+		print("balance btc :", str(float(btcprice) * totalBalance))
+		print("balance gbp :", str(float(gbpprice) * totalBalance))
+		print("balance eur :", str(float(eurprice) * totalBalance))
+		print("balance aud :", str(float(audprice) * totalBalance))
+		print("balance cad :", str(float(cadprice) * totalBalance))
+		if input("Do you want to search another address(Y/n)? ").lower() == "n":
+			loop = False
+			break
+		address = [input("What address balance do you want to lookup? ")]
+
+def importAddresses():
+	addresses = open("addresses.txt", "r")
+	x = []
+	for line in addresses:
+		x.append(line)
+	for i in range(len(x)):
+		y = x[i]
+		x[i] = y[0:-1]
+	addresses.close
+	addresses = x
+	return addresses
+	
+def addAddress(address):
+	addresses = open("addresses.txt", "r+")
+	x = importAddresses()
+	for i in range(len(x)):
+		addresses.write(x[i] + '\n')
+	addresses.write(address)
+	addresses.close
+	print("Success!")
+		
+def main(flag):
+	try:
+		if flag[0] == "-h":
+			print(helptext)
+		elif flag[0] == "-a":
+			try:
+				addAddress(flag[1])
+			except:
+				print(helptext)
+				raise ValueError("Usage: -a [ADDRESS]")
+		elif flag[0] == "-l":
+			try:
+				lookup(flag[1])
+			except:
+				print(helptext)
+				raise ValueError("Usage: -l [ADDRESS]")
+		elif flag[0] == "-b":
+			balance()
+		elif flag[0] == "-v":
+			print(version)
+		else:
+			print(helptext)
+	except IndexError:
+		balance()
+	
+
+if __name__ == "__main__":
+	addresses = importAddresses()
+	main(sys.argv[1:])
