@@ -77,6 +77,7 @@ class ltc:
 	dogeprice = litecoin["price_doge"]
 
 def dogebalance():
+	addresses = importAddresses()
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -96,7 +97,7 @@ def dogebalance():
 	print("balance cad :", str(float(doge.cadprice) * totalBalance))
 	
 def btcbalance():
-	balance = importAddresses('btc')
+	addresses = importAddresses('btc')
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -116,7 +117,7 @@ def btcbalance():
 	print("balance cad :", str(float(btc.cadprice) * totalBalance))
 	
 def ltcbalance():
-	balance = importAddresses('ltc')
+	addresses = importAddresses('ltc')
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -206,7 +207,7 @@ def main(flag):
 		else:
 			print(helptext)
 	except IndexError:
-		balance()
+		print(helptext)
 	
 
 if __name__ == "__main__":
