@@ -43,6 +43,8 @@ class doge:
 	audprice = dogecoin["price_aud"]
 	dogecoin = coinmarketcap.ticker("Dogecoin", limit=3, convert="CAD")[0]
 	cadprice = dogecoin["price_cad"]
+	dogecoin = coinmarketcap.ticker("Dogecoin", limit=3, convert="LTC")[0]
+	ltcprice = dogecoin["price_ltc"]
 
 class btc:
 	bitcoin = coinmarketcap.ticker("Bitcoin", limit=3, convert="USD")[0]
@@ -56,6 +58,8 @@ class btc:
 	audprice = bitcoin["price_aud"]
 	bitcoin = coinmarketcap.ticker("Bitcoin", limit=3, convert="CAD")[0]
 	cadprice = bitcoin["price_cad"]
+	bitcoin = coinmarketcap.ticker("Bitcoin", limit=3, convert="DOGE")[0]
+	dogeprice = bitcoin["price_doge"]
 
 class ltc:
 	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="USD")[0]
@@ -69,6 +73,8 @@ class ltc:
 	audprice = litecoin["price_aud"]
 	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="CAD")[0]
 	cadprice = litecoin["price_cad"]
+	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="DOGE")[0]
+	dogeprice = litecoin["price_doge"]
 
 def dogebalance():
 	os.system('cls' if os.name == 'nt' else 'clear')
@@ -81,14 +87,16 @@ def dogebalance():
 		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' doge')
 	print('total balance : '+str(sum(balance)/100000000)+' doge')
 	totalBalance = sum(balance)/100000000
-	print("balance usd :", str(float(usdprice) * totalBalance))
-	print("balance btc :", str(float(btcprice) * totalBalance))
-	print("balance gbp :", str(float(gbpprice) * totalBalance))
-	print("balance eur :", str(float(eurprice) * totalBalance))
-	print("balance aud :", str(float(audprice) * totalBalance))
-	print("balance cad :", str(float(cadprice) * totalBalance))
+	print("balance usd :", str(float(doge.usdprice) * totalBalance))
+	print("balance btc :", str(float(doge.btcprice) * totalBalance))
+	print("balance ltc :", str(float(doge.ltcprice) * totalBalance))
+	print("balance gbp :", str(float(doge.gbpprice) * totalBalance))
+	print("balance eur :", str(float(doge.eurprice) * totalBalance))
+	print("balance aud :", str(float(doge.audprice) * totalBalance))
+	print("balance cad :", str(float(doge.cadprice) * totalBalance))
 	
 def btcbalance():
+	balance = importAddresses('btc')
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -99,14 +107,16 @@ def btcbalance():
 		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' btc')
 	print('total balance : '+str(sum(balance)/100000000)+' btc')
 	totalBalance = sum(balance)/100000000
-	print("balance usd :", str(float(usdprice) * totalBalance))
-	print("balance btc :", str(float(btcprice) * totalBalance))
-	print("balance gbp :", str(float(gbpprice) * totalBalance))
-	print("balance eur :", str(float(eurprice) * totalBalance))
-	print("balance aud :", str(float(audprice) * totalBalance))
-	print("balance cad :", str(float(cadprice) * totalBalance))
+	print("balance doge :", str(float(btc.dogeprice) * totalBalance))
+	print("balance usd :", str(float(btc.usdprice) * totalBalance))
+	print("balance btc :", str(float(btc.btcprice) * totalBalance))
+	print("balance gbp :", str(float(btc.gbpprice) * totalBalance))
+	print("balance eur :", str(float(btc.eurprice) * totalBalance))
+	print("balance aud :", str(float(btc.audprice) * totalBalance))
+	print("balance cad :", str(float(btc.cadprice) * totalBalance))
 	
 def ltcbalance():
+	balance = importAddresses('ltc')
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -117,12 +127,13 @@ def ltcbalance():
 		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' ltc')
 	print('total balance : '+str(sum(balance)/100000000)+' ltc')
 	totalBalance = sum(balance)/100000000
-	print("balance usd :", str(float(usdprice) * totalBalance))
-	print("balance btc :", str(float(btcprice) * totalBalance))
-	print("balance gbp :", str(float(gbpprice) * totalBalance))
-	print("balance eur :", str(float(eurprice) * totalBalance))
-	print("balance aud :", str(float(audprice) * totalBalance))
-	print("balance cad :", str(float(cadprice) * totalBalance))
+	print("balance doge :", str(float(ltc.dogeprice) * totalBalance))
+	print("balance usd :", str(float(ltc.usdprice) * totalBalance))
+	print("balance btc :", str(float(ltc.btcprice) * totalBalance))
+	print("balance gbp :", str(float(ltc.gbpprice) * totalBalance))
+	print("balance eur :", str(float(ltc.eurprice) * totalBalance))
+	print("balance aud :", str(float(ltc.audprice) * totalBalance))
+	print("balance cad :", str(float(ltc.cadprice) * totalBalance))
 
 def lookup(address):
 	loop = True
@@ -185,13 +196,13 @@ def main(flag):
 			except IndexError:
 				print(helptext)
 		elif flag[0] == "-b":
-			balance()
+			dogebalance()
 		elif flag[0] == "-v":
 			print(version)
 		elif flag[0] == "-B":
-			balance(currency="btc")
+			btcbalance()
 		elif flag[0] == "-L":
-			balance(currency="ltc")
+			ltcbalance()
 		else:
 			print(helptext)
 	except IndexError:

@@ -12,6 +12,7 @@ Do the following command to install CoinMarketCap when you have Pip setup:
 ## Setting Up
 
 In `addresses.txt`, you input your addresses there. Every address should be seperated by a new line.
+You can also input Bitcoin and Litcoin addresses in `btc.txt` and `ltc.txt` respectively.
 
 ## Running The Program
 
