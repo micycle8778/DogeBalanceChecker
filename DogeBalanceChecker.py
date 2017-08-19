@@ -76,7 +76,7 @@ class ltc:
 	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="DOGE")[0]
 	dogeprice = litecoin["price_doge"]
 
-def verifyAddresses(currency="address",prefix=["D","A","9"]):
+def verifyAddresses(currency="addresses",prefix=["D","A","9"]):
 	addresses = importAddresses(currency)
 	for i in addresses:
 		if not i[0] in prefix:
