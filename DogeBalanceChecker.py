@@ -76,8 +76,17 @@ class ltc:
 	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="DOGE")[0]
 	dogeprice = litecoin["price_doge"]
 
+def verifyAddresses(currency="addresses",prefix=["D","A","9"]):
+	addresses = importAddresses(currency)
+	for i in addresses:
+		if not i[0] in prefix:
+			raise ValueError("Invalid Address")
+		elif len(i) != 34:
+			raise ValueError("Invalid Address")
+
 def dogebalance():
 	addresses = importAddresses()
+	verifyAddresses()
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -98,6 +107,7 @@ def dogebalance():
 	
 def btcbalance():
 	addresses = importAddresses('btc')
+	verifyAddresses("btc", ["1", "3"])
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
@@ -118,6 +128,7 @@ def btcbalance():
 	
 def ltcbalance():
 	addresses = importAddresses('ltc')
+	verifyAddresses("ltc", ["L"])
 	os.system('cls' if os.name == 'nt' else 'clear')
 	balance = []
 	for i in addresses:
