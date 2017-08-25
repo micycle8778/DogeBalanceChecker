@@ -14,9 +14,7 @@ Help:
 
 -b : shows balance of recorded addresses
 
--l : lets you lookup the balance of any address in multiple currencies
-
--m : shows you the balance of recorded addresses in multiple currencies
+-l : lets you lookup the balance of any dogecoin address in multiple currencies
 
 -a : adds address to the list of addresses
 
