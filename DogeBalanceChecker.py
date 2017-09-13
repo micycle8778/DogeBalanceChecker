@@ -19,7 +19,7 @@ Help:
 
 -l : lets you lookup the balance of any address in dogecoin only : -l [ADDRESS]
 
--a : adds address to the list of addresses ; -a [ADDRESS]
+-a : adds address to the list of addresses : -a [ADDRESS]
 
 -h : display help text
 
