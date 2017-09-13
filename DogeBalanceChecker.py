@@ -3,20 +3,23 @@ import json
 from coinmarketcap import Market
 import os
 import sys
+from time import gmtime, strftime, sleep
 
 os.system('cls' if os.name == 'nt' else 'clear')
 helptext = """
-DogeBalanceChecker 1.1
+DogeBalanceChecker 1.4
 
 python DogeBalanceChecker [FLAG]
+
+-[letter] : defintion : usage <default: -[LETTER]>
 
 Help:
 
 -b : shows balance of recorded addresses
 
--l : lets you lookup the balance of any dogecoin address in multiple currencies
+-l : lets you lookup the balance of any address in dogecoin only : -l [ADDRESS]
 
--a : adds address to the list of addresses
+-a : adds address to the list of addresses : -a [ADDRESS]
 
 -h : display help text
 
@@ -25,6 +28,8 @@ Help:
 -B : display balance of bitcoin addresses
 
 -L : display balance of litecoin addresses
+
+-d : tracks an address for future trasactions : -d [ADDRESS]
 """
 version = "DogeBalanceChecker 1.1"
 
@@ -74,8 +79,12 @@ class ltc:
 	litecoin = coinmarketcap.ticker("Litecoin", limit=3, convert="DOGE")[0]
 	dogeprice = litecoin["price_doge"]
 
-def verifyAddresses(currency="addresses",prefix=["D","A","9"]):
-	addresses = importAddresses(currency)
+def verifyAddresses(currency="addresses",prefix=["D","A","9"], documented=True, address=None):
+	if documented:
+		addresses = importAddresses(currency)
+	elif not documented:
+		addresses = [address]
+	
 	for i in addresses:
 		if not i[0] in prefix:
 			raise ValueError("Invalid Address")
@@ -190,9 +199,32 @@ def addAddress(address, currency="addresses"):
 	addresses.write(address)
 	addresses.close
 	print("Success!")
-		
+	
+def detect(address):
+	verifyAddresses(documented=False, address=address)
+	os.system('cls' if os.name == 'nt' else 'clear')
+	addresses = []
+	theBalance = -1
+	addresses.append(address)
+	while True:
+		balance = []
+		time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+		for i in addresses:
+			get_address_info = requests.get('https://api.blockcypher.com/v1/doge/main/addrs/'+i+'/full?limit=99999')
+			address_info = get_address_info.text
+			j_address_info = json.loads(address_info)
+			balance.append(j_address_info['balance'])
+			newBalance = int(j_address_info['balance']/100000000)
+			if newBalance != theBalance:
+				if theBalance == -1:
+					print("["+time+"]", "Initial balance:", newBalance)
+				elif newBalance > theBalance:
+					print("["+time+"]", "Address has received", newBalance - theBalance, "New balance:", newBalance)
+				elif newBalance < theBalance:
+					print("["+time+"]", "Address has withdrawn", str(theBalance - newBalance) + "doge", "New balance:", newBalance)
+			theBalance = newBalance
+		sleep(60)
 def main(flag):
-	try:
 		if flag[0] == "-h":
 			print(helptext)
 		elif flag[0] == "-a":
@@ -213,10 +245,10 @@ def main(flag):
 			btcbalance()
 		elif flag[0] == "-L":
 			ltcbalance()
+		elif flag[0] == "-d":
+				detect(flag[1])
 		else:
 			print(helptext)
-	except IndexError:
-		print(helptext)
 	
 
 if __name__ == "__main__":
