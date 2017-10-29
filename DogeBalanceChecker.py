@@ -82,33 +82,16 @@ class ltc: # For litecoin data
 	dogeprice = litecoin["price_doge"]
 
 """ Functions """
-def verifyAddresses(currency="addresses", documented=True, address=None quiet=False): #Verifys addresses
-	prefix = prefixes[currency]
-	# Part for getting addresses
-	if documented:
-		addresses = importAddresses(currency)
-	elif not documented:
-		addresses = [address]
-	# Part for enforcing address syntax
-	for i in addresses:
-		if not quiet:
-			if not i[0] in prefix:
-				raise ValueError("Invalid Address")
-			elif len(i) != 34:
-				raise ValueError("Invalid Address")
-		else: # For allowing the program to avoid a raised error and handle the problem itself. Usually for rasing another error...
-			if not i[0] in prefix:
-				return False
-			elif len(i) != 34:
-				return False
-
-
 def balance(currency, documented=True, address=None): # Finding the balance of cryptocurrency addresses
+	currency = "addresses" if currency == "doge" else currency
 	while True:
 		if documented:
 			addresses = importAddresses("addresses" if currency == "doge" else currency) # Import addresses
 		else:
 			addresses = [address]
+		if len(addresses) == 0 or addresses[1] == None:
+			print("Error! No addresses found!")
+			exit()
 		verifyAddresses(currency=currency, documented=documented, address=address) # Verifys addresses
 		os.system('cls' if os.name == 'nt' else 'clear')
 		balance = []
@@ -148,7 +131,7 @@ def balance(currency, documented=True, address=None): # Finding the balance of c
 			print("balance aud :", str(float(ltc.audprice) * totalBalance))
 			print("balance cad :", str(float(ltc.cadprice) * totalBalance))
 		# Asks the user if they would like to search for another address
-		if documented:
+		if not documented:
 			if input("Do you want to search another address(Y/n)? ").lower() == "n":
 				break
 			address = [input("What address balance do you want to lookup? ")]
@@ -167,14 +150,15 @@ def importAddresses(currency="addresses"): # Imports addresses to the function
 	addresses = x
 	return addresses # Sends back addresses
 	
-def addAddress(address, currency="addresses"): # Adds an address to the record
+def addAddress(address, quiet=False , currency="addresses"): # Adds an address to the record
 	addresses = open(currency+".txt", "r+") # Opens address file
 	x = importAddresses() # Gets the addresses pre record
 	for i in range(len(x)):
 		addresses.write(x[i] + '\n') # Writes old addresses to the now blank file
 	addresses.write(address) # Writes new address
 	addresses.close # Closes file
-	print("Success!") # Prints out verfication
+	if not quiet:
+	    print("Success!") # Prints out verfication
 	
 def detect(address): # Tracks the balance of an address
 	verifyAddresses(documented=False, address=address) # Verifys the address
@@ -226,15 +210,37 @@ def importFile(file):
 	for i in range(len(x)): # Finds the addresses in in the lines
 		y = x[i]
 		add = startingInt(y)
-		addresses.append[2+add:36+add]
+		addresses.append(x[i][2+add:36+add])
 	for i in addresses:
-		if not verifyAddresses(documented=True, address=i, quiet=True):
-			raise ValueError("Error! Please check your addresses to make sure they are valid!")
+		if(not verifyAddresses(documented=False, address=i, quiet=True)):
+		    addresses.pop(i)
 	notNeeded = importAddresses()
 	for i in addresses:
 		if i in notNeeded:
 			continue
-		addAddress(i)
+		addAddress(i, True)
+	print("Success!")
+def verifyAddresses(currency="addresses", documented=True, address=None, quiet=False): #Verifys addresses
+	prefix = prefixes[currency]
+	# Part for getting addresses
+	if documented:
+		addresses = importAddresses(currency)
+	elif not documented:
+		addresses = [address]
+	# Part for enforcing address syntax
+	for i in addresses:
+		if not quiet:
+			if not i[0] in prefix:
+				raise ValueError("Invalid Address")
+			if not len(i) != 34:
+				raise ValueError("Invalid Address")
+		elif quiet: # For allowing the program to avoid a raised error and handle the problem itself. Usually for rasing another error...
+				if not i[0] in prefix:
+					return False
+				if len(i) != 34:
+					return False
+				else:
+					return True
 def main(flag): # Decides what function of the program to run
 		if len(flag) == 0:
 			print(helptext)
@@ -245,19 +251,19 @@ def main(flag): # Decides what function of the program to run
 				addAddress(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-l":
 			try:
 				balance(currency=flag[1], address=flag[2], documented=False)
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-b":
-		  try:
-			  balance(currency=flag[1])
+			try:
+				balance(currency=flag[1])
 			except IndexError:
-			  print(helptext)
-			  print("Error: PLease use the correct usage")
+				print(helptext)
+				print("Error: PLease use the correct usage!")
 		elif flag[0] == "-v":
 			print(version)
 		elif flag[0] == "-d":
@@ -265,13 +271,13 @@ def main(flag): # Decides what function of the program to run
 				detect(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-i":
 			try:
 				importFile(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		else:
 			print(helptext)
 	
