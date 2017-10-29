@@ -9,7 +9,7 @@ os.system('cls' if os.name == 'nt' else 'clear') # Clears screen
 
 """ Varibles """
 helptext = """
-DogeBalanceChecker 1.5
+DogeBalanceChecker 1.6
 
 python DogeBalanceChecker [FLAG]
 
@@ -17,26 +17,22 @@ python DogeBalanceChecker [FLAG]
 
 Help:
 
--b : shows balance of recorded addresses
+-b : shows balance of recorded addresses : -b [CURRENCY]
 
--l : lets you lookup the balance of any address in dogecoin only : -l [ADDRESS]
+-l : lets you lookup the balance of any address in dogecoin only : -l [CURRENCY] [ADDRESS]
 
--a : adds address to the list of addresses ; -a [ADDRESS]
+-a : adds address to the list of addresses : -a [ADDRESS]
 
 -h : display help text
 
 -v : display the program version
 
--B : display balance of bitcoin addresses
-
--L : display balance of litecoin addresses
-
 -d : tracks an address for future trasactions : -d [ADDRESS]
 
 -i : imports addresses from output of walletgenerator.net's bulk wallet mode : -i [FILENAME]
 """
-version = "DogeBalanceChecker 1.5"
-
+version = "DogeBalanceChecker 1.6"
+prefixes = {"addresses":["D","A","9"], "btc":["1","3"], "ltc":["L"]}
 """ Price Data """
 coinmarketcap = Market()
 
@@ -86,118 +82,61 @@ class ltc: # For litecoin data
 	dogeprice = litecoin["price_doge"]
 
 """ Functions """
-def verifyAddresses(currency="addresses",prefix=["D","A","9"], documented=True, address=None quiet=False): #Verifys addresses
-	# Part for getting addresses
-	if documented:
-		addresses = importAddresses(currency)
-	elif not documented:
-		addresses = [address]
-	# Part for enforcing address syntax
-	for i in addresses:
-	  if not quiet:
-		  if not i[0] in prefix:
-			  raise ValueError("Invalid Address")
-		  elif len(i) != 34:
-			  raise ValueError("Invalid Address")
-		else: # For allowing the program to avoid a raised error and handle the problem itself. Usually for rasing another error...
-		  if not i[0] in prefix:
-			  return False
-		  elif len(i) != 34:
-			  return False
-
-def dogebalance(): # Finding the balance of Dogecoin addresses
-	addresses = importAddresses() # Import addresses
-	verifyAddresses() # Verifys addresses
-	os.system('cls' if os.name == 'nt' else 'clear')
-	balance = []
-	# Finds the balance of addresses
-	for i in addresses:
-		get_address_info = requests.get('https://api.blockcypher.com/v1/doge/main/addrs/'+i+'/full?limit=99999')
-		address_info = get_address_info.text
-		j_address_info = json.loads(address_info)
-		balance.append(j_address_info['balance'])
-		# Prints balances and conversions
-		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' doge')
-	print('total balance : '+str(sum(balance)/100000000)+' doge')
-	totalBalance = sum(balance)/100000000
-	print("balance usd :", str(float(doge.usdprice) * totalBalance))
-	print("balance btc :", str(float(doge.btcprice) * totalBalance))
-	print("balance ltc :", str(float(doge.ltcprice) * totalBalance))
-	print("balance gbp :", str(float(doge.gbpprice) * totalBalance))
-	print("balance eur :", str(float(doge.eurprice) * totalBalance))
-	print("balance aud :", str(float(doge.audprice) * totalBalance))
-	print("balance cad :", str(float(doge.cadprice) * totalBalance))
-	
-def btcbalance(): # Finding the balance of Bitcoin addresses
-	addresses = importAddresses('btc')
-	verifyAddresses("btc", ["1", "3"])
-	os.system('cls' if os.name == 'nt' else 'clear')
-	balance = []
-	for i in addresses:
-		get_address_info = requests.get('https://api.blockcypher.com/v1/btc/main/addrs/'+i+'/full?limit=99999')
-		address_info = get_address_info.text
-		j_address_info = json.loads(address_info)
-		balance.append(j_address_info['balance'])
-		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' btc')
-	print('total balance : '+str(sum(balance)/100000000)+' btc')
-	totalBalance = sum(balance)/100000000
-	print("balance doge :", str(float(btc.dogeprice) * totalBalance))
-	print("balance usd :", str(float(btc.usdprice) * totalBalance))
-	print("balance btc :", str(float(btc.btcprice) * totalBalance))
-	print("balance gbp :", str(float(btc.gbpprice) * totalBalance))
-	print("balance eur :", str(float(btc.eurprice) * totalBalance))
-	print("balance aud :", str(float(btc.audprice) * totalBalance))
-	print("balance cad :", str(float(btc.cadprice) * totalBalance))
-	
-def ltcbalance(): # Finding the balance of Litecoin addresses
-	addresses = importAddresses('ltc')
-	verifyAddresses("ltc", ["L"])
-	os.system('cls' if os.name == 'nt' else 'clear')
-	balance = []
-	for i in addresses:
-		get_address_info = requests.get('https://api.blockcypher.com/v1/ltc/main/addrs/'+i+'/full?limit=99999')
-		address_info = get_address_info.text
-		j_address_info = json.loads(address_info)
-		balance.append(j_address_info['balance'])
-		print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' ltc')
-	print('total balance : '+str(sum(balance)/100000000)+' ltc')
-	totalBalance = sum(balance)/100000000
-	print("balance doge :", str(float(ltc.dogeprice) * totalBalance))
-	print("balance usd :", str(float(ltc.usdprice) * totalBalance))
-	print("balance btc :", str(float(ltc.btcprice) * totalBalance))
-	print("balance gbp :", str(float(ltc.gbpprice) * totalBalance))
-	print("balance eur :", str(float(ltc.eurprice) * totalBalance))
-	print("balance aud :", str(float(ltc.audprice) * totalBalance))
-	print("balance cad :", str(float(ltc.cadprice) * totalBalance))
-
-def lookup(address): # Looks up addresses that aren't recorded
-	loop = True # Sets the loop value
-	while(loop): # Loops function
-		# Sets up function more
-		addresses = []
-		addresses.append(address)
+def balance(currency, documented=True, address=None): # Finding the balance of cryptocurrency addresses
+	currency = "addresses" if currency == "doge" else currency
+	while True:
+		if documented:
+			addresses = importAddresses("addresses" if currency == "doge" else currency) # Import addresses
+		else:
+			addresses = [address]
+		if len(addresses) == 0 or addresses[1] == None:
+			print("Error! No addresses found!")
+			exit()
+		verifyAddresses(currency=currency, documented=documented, address=address) # Verifys addresses
 		os.system('cls' if os.name == 'nt' else 'clear')
 		balance = []
-		# Finds balance
+		# Finds the balance of addresses
 		for i in addresses:
-			get_address_info = requests.get('https://api.blockcypher.com/v1/'+currency+'/main/addrs/'+i+'/full?limit=99999')
+			get_address_info = requests.get('https://api.blockcypher.com/v1/doge/main/addrs/'+i+'/full?limit=99999')
 			address_info = get_address_info.text
 			j_address_info = json.loads(address_info)
 			balance.append(j_address_info['balance'])
-		# Prints balance
-		print(addresses[0]+"'s balance : "+str(sum(balance)/100000000)+' doge')
+			# Prints balances and conversions
+			if not len(addresses) >= 10:
+				print('address : '+str(i)+' - balance : '+str(j_address_info['balance']/100000000)+' doge')
+		print('total balance : '+str(sum(balance)/100000000)+' doge')
 		totalBalance = sum(balance)/100000000
-		print("balance usd :", str(float(doge.usdprice) * totalBalance))
-		print("balance btc :", str(float(doge.btcprice) * totalBalance))
-		print("balance gbp :", str(float(doge.gbpprice) * totalBalance))
-		print("balance eur :", str(float(doge.eurprice) * totalBalance))
-		print("balance aud :", str(float(doge.audprice) * totalBalance))
-		print("balance cad :", str(float(doge.cadprice) * totalBalance))
+		if currency == "doge":
+			print("balance usd :", str(float(doge.usdprice) * totalBalance))
+			print("balance btc :", str(float(doge.btcprice) * totalBalance))
+			print("balance ltc :", str(float(doge.ltcprice) * totalBalance))
+			print("balance gbp :", str(float(doge.gbpprice) * totalBalance))
+			print("balance eur :", str(float(doge.eurprice) * totalBalance))
+			print("balance aud :", str(float(doge.audprice) * totalBalance))
+			print("balance cad :", str(float(doge.cadprice) * totalBalance))
+		elif currency == "btc":
+			print("balance usd :", str(float(btc.usdprice) * totalBalance))
+			print("balance btc :", str(float(btc.btcprice) * totalBalance))
+			print("balance ltc :", str(float(btc.ltcprice) * totalBalance))
+			print("balance gbp :", str(float(btc.gbpprice) * totalBalance))
+			print("balance eur :", str(float(btc.eurprice) * totalBalance))
+			print("balance aud :", str(float(btc.audprice) * totalBalance))
+			print("balance cad :", str(float(btc.cadprice) * totalBalance))
+		elif currency == "ltc":
+			print("balance usd :", str(float(ltc.usdprice) * totalBalance))
+			print("balance btc :", str(float(ltc.btcprice) * totalBalance))
+			print("balance ltc :", str(float(ltc.ltcprice) * totalBalance))
+			print("balance gbp :", str(float(ltc.gbpprice) * totalBalance))
+			print("balance eur :", str(float(ltc.eurprice) * totalBalance))
+			print("balance aud :", str(float(ltc.audprice) * totalBalance))
+			print("balance cad :", str(float(ltc.cadprice) * totalBalance))
 		# Asks the user if they would like to search for another address
-		if input("Do you want to search another address(Y/n)? ").lower() == "n":
-			loop = False
+		if not documented:
+			if input("Do you want to search another address(Y/n)? ").lower() == "n":
+				break
+			address = [input("What address balance do you want to lookup? ")]
+		else:
 			break
-		address = [input("What address balance do you want to lookup? ")]
 
 def importAddresses(currency="addresses"): # Imports addresses to the function
 	addresses = open(currency+".txt", "r") # Opens up address file
@@ -211,14 +150,15 @@ def importAddresses(currency="addresses"): # Imports addresses to the function
 	addresses = x
 	return addresses # Sends back addresses
 	
-def addAddress(address, currency="addresses"): # Adds an address to the record
+def addAddress(address, quiet=False , currency="addresses"): # Adds an address to the record
 	addresses = open(currency+".txt", "r+") # Opens address file
 	x = importAddresses() # Gets the addresses pre record
 	for i in range(len(x)):
 		addresses.write(x[i] + '\n') # Writes old addresses to the now blank file
 	addresses.write(address) # Writes new address
 	addresses.close # Closes file
-	print("Success!") # Prints out verfication
+	if not quiet:
+	    print("Success!") # Prints out verfication
 	
 def detect(address): # Tracks the balance of an address
 	verifyAddresses(documented=False, address=address) # Verifys the address
@@ -249,39 +189,61 @@ def detect(address): # Tracks the balance of an address
 		sleep(60) # Sleeps the program for 60 seconds to prevent burning though the limit of uses
 
 def startingInt(string):
-  startingInts = 1
-  while True:
-    try:
-      int(string[startingInts])
-    except:
-      break
-    startingInts = startingInts + 1
-  return startingInts
+	startingInts = 1
+	while True:
+		try:
+			int(string[startingInts])
+		except:
+			break
+		startingInts = startingInts + 1
+	return startingInts
 
 def importFile(file):
-  file = open(file, "r")
-  x = []
-  for line in file:
+	file = open(file, "r")
+	x = []
+	for line in file:
 		x.append(line) # Scans all lines in file
 	for i in range(len(x)): # "Fixes" the lines
 		y = x[i]
 		x[i] = y[0:-1]
 	addresses = []
 	for i in range(len(x)): # Finds the addresses in in the lines
-	  y = x[i]
-	  add = startingInt(y)
-	  addresses.append[2+add:36+add]
+		y = x[i]
+		add = startingInt(y)
+		addresses.append(x[i][2+add:36+add])
 	for i in addresses:
-	  if not verifyAddresses(documented=True, address=i, quiet=True):
-	    raise ValueError("Error! Please check your addresses to make sure they are valid!")
+		if(not verifyAddresses(documented=False, address=i, quiet=True)):
+		    addresses.pop(i)
 	notNeeded = importAddresses()
 	for i in addresses:
-	  if i in notNeeded:
-	    continue
-	  addAddress(i)
+		if i in notNeeded:
+			continue
+		addAddress(i, True)
+	print("Success!")
+def verifyAddresses(currency="addresses", documented=True, address=None, quiet=False): #Verifys addresses
+	prefix = prefixes[currency]
+	# Part for getting addresses
+	if documented:
+		addresses = importAddresses(currency)
+	elif not documented:
+		addresses = [address]
+	# Part for enforcing address syntax
+	for i in addresses:
+		if not quiet:
+			if not i[0] in prefix:
+				raise ValueError("Invalid Address")
+			if not len(i) != 34:
+				raise ValueError("Invalid Address")
+		elif quiet: # For allowing the program to avoid a raised error and handle the problem itself. Usually for rasing another error...
+				if not i[0] in prefix:
+					return False
+				if len(i) != 34:
+					return False
+				else:
+					return True
 def main(flag): # Decides what function of the program to run
-    if len(flag) == 0:
-      print(helptext)
+		if len(flag) == 0:
+			print(helptext)
 		elif flag[0] == "-h":
 			print(helptext)
 		elif flag[0] == "-a":
@@ -289,33 +251,33 @@ def main(flag): # Decides what function of the program to run
 				addAddress(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-l":
 			try:
-				lookup(flag[1])
+				balance(currency=flag[1], address=flag[2], documented=False)
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-b":
-			dogebalance()
+			try:
+				balance(currency=flag[1])
+			except IndexError:
+				print(helptext)
+				print("Error: PLease use the correct usage!")
 		elif flag[0] == "-v":
 			print(version)
-		elif flag[0] == "-B":
-			btcbalance()
-		elif flag[0] == "-L":
-			ltcbalance()
 		elif flag[0] == "-d":
 			try:
 				detect(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		elif flag[0] == "-i":
-		  try:
+			try:
 				importFile(flag[1])
 			except IndexError:
 				print(helptext)
-				print("Error: Please use the correct usage")
+				print("Error: Please use the correct usage!")
 		else:
 			print(helptext)
 	
