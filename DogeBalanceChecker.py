@@ -9,7 +9,7 @@ os.system('cls' if os.name == 'nt' else 'clear') # Clears screen
 
 """ Varibles """
 helptext = """
-DogeBalanceChecker 1.5
+DogeBalanceChecker 1.4
 
 python DogeBalanceChecker [FLAG]
 
@@ -32,10 +32,8 @@ Help:
 -L : display balance of litecoin addresses
 
 -d : tracks an address for future trasactions : -d [ADDRESS]
-
--i : imports addresses from output of walletgenerator.net's bulk wallet mode : -i [FILENAME]
 """
-version = "DogeBalanceChecker 1.5"
+version = "DogeBalanceChecker 1.4"
 
 """ Price Data """
 coinmarketcap = Market()
@@ -86,7 +84,7 @@ class ltc: # For litecoin data
 	dogeprice = litecoin["price_doge"]
 
 """ Functions """
-def verifyAddresses(currency="addresses",prefix=["D","A","9"], documented=True, address=None quiet=False): #Verifys addresses
+def verifyAddresses(currency="addresses",prefix=["D","A","9"], documented=True, address=None): #Verifys addresses
 	# Part for getting addresses
 	if documented:
 		addresses = importAddresses(currency)
@@ -94,16 +92,10 @@ def verifyAddresses(currency="addresses",prefix=["D","A","9"], documented=True, 
 		addresses = [address]
 	# Part for enforcing address syntax
 	for i in addresses:
-	  if not quiet:
-		  if not i[0] in prefix:
-			  raise ValueError("Invalid Address")
-		  elif len(i) != 34:
-			  raise ValueError("Invalid Address")
-		else: # For allowing the program to avoid a raised error and handle the problem itself. Usually for rasing another error...
-		  if not i[0] in prefix:
-			  return False
-		  elif len(i) != 34:
-			  return False
+		if not i[0] in prefix:
+			raise ValueError("Invalid Address")
+		elif len(i) != 34:
+			raise ValueError("Invalid Address")
 
 def dogebalance(): # Finding the balance of Dogecoin addresses
 	addresses = importAddresses() # Import addresses
@@ -173,7 +165,7 @@ def ltcbalance(): # Finding the balance of Litecoin addresses
 def lookup(address): # Looks up addresses that aren't recorded
 	loop = True # Sets the loop value
 	while(loop): # Loops function
-		# Sets up function more
+	  # Sets up function more
 		addresses = []
 		addresses.append(address)
 		os.system('cls' if os.name == 'nt' else 'clear')
@@ -246,43 +238,9 @@ def detect(address): # Tracks the balance of an address
 				elif newBalance < theBalance:
 					print("["+time+"]", "Address has withdrawn", str(theBalance - newBalance) + "doge", "New balance:", newBalance)
 			theBalance = newBalance
-		sleep(60) # Sleeps the program for 60 seconds to prevent burning though the limit of uses
-
-def startingInt(string):
-  startingInts = 1
-  while True:
-    try:
-      int(string[startingInts])
-    except:
-      break
-    startingInts = startingInts + 1
-  return startingInts
-
-def importFile(file):
-  file = open(file, "r")
-  x = []
-  for line in file:
-		x.append(line) # Scans all lines in file
-	for i in range(len(x)): # "Fixes" the lines
-		y = x[i]
-		x[i] = y[0:-1]
-	addresses = []
-	for i in range(len(x)): # Finds the addresses in in the lines
-	  y = x[i]
-	  add = startingInt(y)
-	  addresses.append[2+add:36+add]
-	for i in addresses:
-	  if not verifyAddresses(documented=True, address=i, quiet=True):
-	    raise ValueError("Error! Please check your addresses to make sure they are valid!")
-	notNeeded = importAddresses()
-	for i in addresses:
-	  if i in notNeeded:
-	    continue
-	  addAddress(i)
+		sleep(60) # Sleeps the program for 60 seconds to prevent timeout
 def main(flag): # Decides what function of the program to run
-    if len(flag) == 0:
-      print(helptext)
-		elif flag[0] == "-h":
+		if flag[0] == "-h":
 			print(helptext)
 		elif flag[0] == "-a":
 			try:
@@ -305,17 +263,11 @@ def main(flag): # Decides what function of the program to run
 		elif flag[0] == "-L":
 			ltcbalance()
 		elif flag[0] == "-d":
-			try:
+		  try:
 				detect(flag[1])
 			except IndexError:
-				print(helptext)
-				print("Error: Please use the correct usage")
-		elif flag[0] == "-i":
-		  try:
-				importFile(flag[1])
-			except IndexError:
-				print(helptext)
-				print("Error: Please use the correct usage")
+			  print(helptext)
+			  print("Error: Please use the correct usage")
 		else:
 			print(helptext)
 	
